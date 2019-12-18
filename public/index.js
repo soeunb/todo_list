@@ -13,41 +13,62 @@ addBtn.addEventListener('click', function () {
     console.log('testtttttttt');
 });
 */
-var toDoForm = document.querySelector(".js-toDoForm"), toDoInput = toDoForm.querySelector("textarea"), toDoAddBtn = document.querySelector('#add_btn'), toDoList = document.querySelector(".js-toDoList");
+var toDoForm = document.querySelector(".todo-form"), toDoInput = toDoForm.querySelector("textarea"), toDoAddBtn = document.querySelector('.add-btn'), toDoList = document.querySelector(".todo-list");
 var TODOS_LS = "toDos";
+var toDos = [];
+function saveToDos() {
+    localStorage.setItem(TODOS_LS, JSON.stringify(toDos));
+}
 function paintToDo(text) {
     var li = document.createElement("li");
-    var comBtn = document.createElement("input");
-    var delBtn = document.createElement("input");
+    var idx = toDos.length + 1;
+    var comBtn = document.createElement("button");
+    var comImg = document.createElement("img");
+    var delBtn = document.createElement("button");
+    var delImg = document.createElement("img");
     comBtn.setAttribute("type", "button");
-    comBtn.setAttribute("value", "✔️");
+    comImg.setAttribute("src", "./img/bg2.png");
+    comBtn.appendChild(comImg);
     delBtn.setAttribute("type", "button");
-    delBtn.setAttribute("value", "❌");
+    delImg.setAttribute("src", "./img/bg2.png");
+    delBtn.appendChild(delImg);
+    var p = document.createElement("p");
     var span = document.createElement("span");
+    p.appendChild(span);
     span.innerText = text;
-    li.appendChild(span);
-    li.appendChild(comBtn);
-    li.appendChild(delBtn);
+    var div = document.createElement("div");
+    div.setAttribute("class", "li-btn");
+    div.appendChild(comBtn);
+    div.appendChild(delBtn);
+    li.appendChild(p);
+    li.appendChild(div);
+    li.id = "idx-" + idx;
     toDoList.appendChild(li);
-    //console.log(text);
+    var toDoObj;
+    toDoObj = {
+        todo: text,
+        id: idx
+    };
+    toDos.push(toDoObj);
+    saveToDos();
 }
-/*
-<li>
-<input type="checkbox" id="list01" name="" value="" checked>
-<label for="list01">index:0, value:"할일"</label>
-</li>
-*/
 toDoAddBtn.addEventListener("click", function () {
     var currentValue = toDoInput.value; //toDoForm.querySelector("#~")로 했을 때 toDoInput.nodevalue?
-    paintToDo(currentValue);
-    //console.log("currentValue",currentValue);
     if (currentValue.replace(/^\s/gm, '') !== "") {
+        paintToDo(currentValue);
         toDoInput.value = "";
+    }
+    else {
+        alert("할 일을 입력하세요");
     }
 });
 function loadToDos() {
-    var toDos = localStorage.getItem(TODOS_LS);
-    if (toDos !== null) {
+    var loadedToDos = localStorage.getItem(TODOS_LS);
+    if (loadedToDos !== null) {
+        var parsedToDos = JSON.parse(loadedToDos);
+        parsedToDos.forEach(function (toDo) {
+            paintToDo(toDo.text);
+        });
     }
 }
 function clear() {

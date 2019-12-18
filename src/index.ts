@@ -15,55 +15,80 @@ addBtn.addEventListener('click', function () {
 });
 */
 
-const toDoForm = document.querySelector(".js-toDoForm"),
+interface TodoObject {
+    todo:string;
+    id:string;
+}
+
+const toDoForm = document.querySelector(".todo-form"),
     toDoInput = toDoForm.querySelector("textarea"),
-    toDoAddBtn = document.querySelector('#add_btn'),
-    toDoList = document.querySelector(".js-toDoList");
+    toDoAddBtn = document.querySelector('.add-btn'),
+    toDoList = document.querySelector(".todo-list");
 
 const TODOS_LS = "toDos";
 
-const toDos = [];
+const toDos:string[] = [];
+
+function saveToDos(){
+    localStorage.setItem(TODOS_LS, JSON.stringify(toDos));
+}
 
 function paintToDo(text:string){
     const li = document.createElement("li");
-    const comBtn = document.createElement("input");
-    const delBtn = document.createElement("input");
+    const idx:any = toDos.length + 1;
+
+    const comBtn = document.createElement("button");
+    const comImg = document.createElement("img");
+    const delBtn = document.createElement("button");
+    const delImg = document.createElement("img");
     comBtn.setAttribute("type", "button");
-    comBtn.setAttribute("value", "✔️");
+    comImg.setAttribute("src", "./img/bg2.png");
+    comBtn.appendChild(comImg);
     delBtn.setAttribute("type", "button");
-    delBtn.setAttribute("value", "❌");
+    delImg.setAttribute("src", "./img/bg2.png");
+    delBtn.appendChild(delImg);
+
+    const p = document.createElement("p");
     const span = document.createElement("span");
+    p.appendChild(span);
     span.innerText = text;
-    li.appendChild(span);
-    li.appendChild(comBtn);
-    li.appendChild(delBtn);
+
+    const div = document.createElement("div");
+    div.setAttribute("class", "li-btn");
+    div.appendChild(comBtn);
+    div.appendChild(delBtn);
+    li.appendChild(p);
+    li.appendChild(div);
+    li.id = "idx-"+idx;
     toDoList.appendChild(li);
-    //console.log(text);
-    const toDoObj = {
-        text: text,
-        id: toDos.length + 1
-    }
+
+    let toDoObj: TodoObject;
+
+    toDoObj = {
+        todo: text,
+        id: idx
+    };
+    toDos.push(toDoObj);
+    saveToDos();
 }
-/*
-<li>
-<input type="checkbox" id="list01" name="" value="" checked>
-<label for="list01">index:0, value:"할일"</label>
-</li>
-*/
 
 toDoAddBtn.addEventListener("click", function () {
     const currentValue = toDoInput.value; //toDoForm.querySelector("#~")로 했을 때 toDoInput.nodevalue?
-    paintToDo(currentValue);
-    //console.log("currentValue",currentValue);
     if(currentValue.replace(/^\s/gm, '') !== ""){
+        paintToDo(currentValue);
         toDoInput.value = "";
+    }else{
+        alert("할 일을 입력하세요");
     }
 });
 
 function loadToDos(){
-    const toDos = localStorage.getItem(TODOS_LS);
-    if(toDos !== null){
-        
+    const loadedToDos = localStorage.getItem(TODOS_LS);
+    if(loadedToDos !== null){
+        const parsedToDos = JSON.parse(loadedToDos);
+        parsedToDos.forEach(function(toDo:any){
+            paintToDo(toDo.text);
+        });
     }
 }
 
