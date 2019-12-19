@@ -1,52 +1,45 @@
+const today = new Date();
+const week = new Array('sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday');
+const month = new Array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+const todayText = document.querySelector(".today-text");
 
-/*
-document.querySelector('#add_btn').addEventListener('click',evt => {
-    console.log('click test');
-})
-*/
-/*
-interface Todo{
-    addTodo: string;
-}
-
-let addBtn = document.querySelector('#add_btn');
-addBtn.addEventListener('click', function () {
-    console.log('testtttttttt');
-});
-*/
+todayText.innerHTML = week[today.getDay()] + ", " + today.getDate() + " " + month[today.getMonth()];
 
 interface TodoObject {
-    todo:string;
-    id:string;
+    todoText: string;
+    todoIdx: number;
 }
 
 const toDoForm = document.querySelector(".todo-form"),
     toDoInput = toDoForm.querySelector("textarea"),
-    toDoAddBtn = document.querySelector('.add-btn'),
+    toDoAddBtn = document.querySelector(".add-btn"),
     toDoList = document.querySelector(".todo-list");
 
-const TODOS_LS = "toDos";
+const TODO_STORAGE = "todo";
 
-const toDos:string[] = [];
+let todos:any[] = [];
 
-function saveToDos(){
-    localStorage.setItem(TODOS_LS, JSON.stringify(toDos));
+function saveTodo(){
+    localStorage.setItem(TODO_STORAGE, JSON.stringify(todos));
 }
 
-function paintToDo(text:string){
+function addTodo(text:string){
     const li = document.createElement("li");
-    const idx:any = toDos.length + 1;
+    const idx:any = todos.length + 1;
 
     const comBtn = document.createElement("button");
     const comImg = document.createElement("img");
     const delBtn = document.createElement("button");
     const delImg = document.createElement("img");
     comBtn.setAttribute("type", "button");
-    comImg.setAttribute("src", "./img/bg2.png");
+    comBtn.setAttribute("class", "com-btn");
+    comImg.setAttribute("src", "./img/img.png");
     comBtn.appendChild(comImg);
     delBtn.setAttribute("type", "button");
-    delImg.setAttribute("src", "./img/bg2.png");
+    delBtn.setAttribute("class", "del-btn");
+    delImg.setAttribute("src", "./img/img2.png");
     delBtn.appendChild(delImg);
+    delBtn.addEventListener("click", deleteTodo);
 
     const p = document.createElement("p");
     const span = document.createElement("span");
@@ -59,35 +52,46 @@ function paintToDo(text:string){
     div.appendChild(delBtn);
     li.appendChild(p);
     li.appendChild(div);
-    li.id = "idx-"+idx;
+    li.id = idx;
     toDoList.appendChild(li);
 
-    let toDoObj: TodoObject;
-
-    toDoObj = {
-        todo: text,
-        id: idx
+    const todoObj = {
+        text: text,
+        idx: idx
     };
-    toDos.push(toDoObj);
-    saveToDos();
+    todos.push(todoObj);
+    saveTodo();
+}
+
+function deleteTodo(event:any){
+    const btn = event.target;
+    const li = btn.parentNode.parentNode.parentNode;
+    toDoList.removeChild(li);
+    // filter - foreach
+    const reDelTodo = todos.filter(function(todo){
+        console.log(deleteTodo);
+        return todo.idx !== parseInt(li.id);
+    });
+    todos = reDelTodo;
+    saveTodo();
 }
 
 toDoAddBtn.addEventListener("click", function () {
     const currentValue = toDoInput.value; //toDoForm.querySelector("#~")로 했을 때 toDoInput.nodevalue?
     if(currentValue.replace(/^\s/gm, '') !== ""){
-        paintToDo(currentValue);
+        addTodo(currentValue);
         toDoInput.value = "";
     }else{
         alert("할 일을 입력하세요");
     }
 });
 
-function loadToDos(){
-    const loadedToDos = localStorage.getItem(TODOS_LS);
-    if(loadedToDos !== null){
-        const parsedToDos = JSON.parse(loadedToDos);
-        parsedToDos.forEach(function(toDo:any){
-            paintToDo(toDo.text);
+function loadTodo(){
+    const storedTodo = localStorage.getItem(TODO_STORAGE);
+    if(storedTodo !== null){
+        const parsedTodo = JSON.parse(storedTodo);
+        parsedTodo.forEach(function(todo:any){
+            addTodo(todo.text);
         });
     }
 }
@@ -97,7 +101,7 @@ function clear(){
 }
 
 function init(){
-    loadToDos();
+    loadTodo();
     clear();
 }
 
