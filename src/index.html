@@ -6,11 +6,12 @@
         <link rel="stylesheet" href="./css/index.css">
         <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet">
     </head>
-    <body>
+    <body onload="re()">
         <div class="todo-wrapper">
-			<div class="today-text"></div>
+			<div class="today-text" data-cur-time=""></div>
 			<form class="todo-form">
-				<textarea id="add-item" placeholder="할 일 입력"></textarea>
+				<textarea id="add-item" placeholder="Enter something to do!"></textarea>
+				<!--onClick="window.location.href=window.location.href"-->
 				<button type="button" class="add-btn"><img src="./img/p_btn.png" /></button>
 			</form>
 			<div class="list-box">
