@@ -33,11 +33,11 @@ function addTodo(text:string){
     const delImg = document.createElement("img");
     comBtn.setAttribute("type", "button");
     comBtn.setAttribute("class", "com-btn");
-    comImg.setAttribute("src", "./img/img.png");
+    comImg.setAttribute("src", "./img/c_btn.png");
     comBtn.appendChild(comImg);
     delBtn.setAttribute("type", "button");
     delBtn.setAttribute("class", "del-btn");
-    delImg.setAttribute("src", "./img/img2.png");
+    delImg.setAttribute("src", "./img/x_btn.png");
     delBtn.appendChild(delImg);
     delBtn.addEventListener("click", deleteTodo);
 
@@ -69,7 +69,6 @@ function deleteTodo(event:any){
     toDoList.removeChild(li);
     // filter - foreach
     const reDelTodo = todos.filter(function(todo){
-        console.log(deleteTodo);
         return todo.idx !== parseInt(li.id);
     });
     todos = reDelTodo;
