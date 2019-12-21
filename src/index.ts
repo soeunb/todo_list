@@ -6,7 +6,7 @@ function time(){
     const month = new Array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
     todayText.innerHTML = week[today.getDay()] + ", " + today.getDate() + " " + month[today.getMonth()];
     todayText.setAttribute("data-cur-time",today.toString());
-    setTimeout("time()", 1000);
+    setTimeout("time()", 3000);
 }
 
 window.onload = function(){
@@ -27,34 +27,31 @@ const TODO_STORAGE = "todo";
 
 let todos:any[] = [];
 
-function re(){
-    
-}
-
 function saveTodo(){
-    localStorage.setItem(TODO_STORAGE, JSON.stringify(todos));
+    localStorage.setItem(TODO_STORAGE, JSON.stringify(todos));	
 }
 
-function addTodo(text:string, curTime:any){
+function drawTodo(text:string, curTime:any, finYN:string){
     const li = document.createElement("li");
     const idx:any = todos.length + 1;
-    const comBtn = document.createElement("button");
-    const comImg = document.createElement("img");
-    /*
+    const finBtn = document.createElement("button");
+    const finImg = document.createElement("img");
+
     const delBtn = document.createElement("button");
     const delImg = document.createElement("img");
-    */
-    comBtn.setAttribute("type", "button");
-    comBtn.setAttribute("class", "com-btn");
-    comImg.setAttribute("src", "./img/c_btn.png");
-    comBtn.appendChild(comImg);
-    /*
+
+    finBtn.setAttribute("type", "button");
+    finBtn.setAttribute("class", "fin-btn");
+    finImg.setAttribute("src", "./img/f_btn.png");
+    finBtn.appendChild(finImg);
+    finBtn.addEventListener("click", finTodo);
+
     delBtn.setAttribute("type", "button");
     delBtn.setAttribute("class", "del-btn");
     delImg.setAttribute("src", "./img/x_btn.png");
     delBtn.appendChild(delImg);
-    delBtn.addEventListener("click", deleteTodo);
-    */
+    delBtn.addEventListener("click", delTodo);
+
     const p = document.createElement("p");
     const span = document.createElement("span");
     const spanTime = document.createElement("span");
@@ -62,27 +59,35 @@ function addTodo(text:string, curTime:any){
     p.appendChild(span);
     p.appendChild(spanTime);
     span.innerText = text;
-    spanTime.innerText = "("+todayText.getAttribute("data-cur-time").split(" GMT")[0]+")";
+    if(spanTime){
+        spanTime.innerText = "(" + curTime.split(" GMT")[0] + ")";
+    }
     const div = document.createElement("div");
     div.setAttribute("class", "li-btn");
-    div.appendChild(comBtn);
-    //div.appendChild(delBtn);
+    div.appendChild(finBtn);
+    div.appendChild(delBtn);
     li.appendChild(p);
     li.appendChild(div);
     li.id = idx;
+    if(finYN === "Y") {
+        li.className = "fin-y";
+    }else{
+        delBtn.style.visibility = "hidden";
+    }
     toDoList.appendChild(li);
 
     const todoObj = {
         text: text,
         idx: idx,
-        curTime : curTime
+        curTime : curTime,
+        finYN : finYN
     };
-    console.log(curTime);
     todos.push(todoObj);
     saveTodo();
 }
 
-function deleteTodo(event:any){
+// 삭제 버튼 클릭 시
+function delTodo(event:any){
     const btn = event.target;
     const li = btn.parentNode.parentNode.parentNode;
     toDoList.removeChild(li);
@@ -95,24 +100,56 @@ function deleteTodo(event:any){
 }
 
 // 추가 버튼 클릭 시
-toDoAddBtn.addEventListener("click", function () {
+function addTodo(){
     const inputVal = toDoInput.value; //toDoForm.querySelector("#~")로 했을 때 toDoInput.nodevalue?
     const curTime = todayText.getAttribute("data-cur-time");
+    const finYN = "";
     if(inputVal.replace(/^\s/gm, '') !== ""){
-        addTodo(inputVal, curTime);
+        drawTodo(inputVal, curTime, finYN);
         toDoInput.value = "";
     }else{
         alert("할 일을 입력하세요");
     }
-});
+}
+
+// 완료 버튼 클릭 시
+function finTodo(event:any){
+    const btn = event.target;
+    const li = btn.parentNode.parentNode.parentNode;
+    const localFin = localStorage.getItem(TODO_STORAGE);
+    const parsedTodo = JSON.parse(localFin);
+   
+    parsedTodo.forEach(function(todo:any){
+        if(todo.idx == li.id){ 
+            if(parsedTodo[todo.idx-1]["finYN"] === "Y"){
+                // 완료 -> 미완료
+                parsedTodo[todo.idx-1]["finYN"] = "N";
+                localStorage.setItem(TODO_STORAGE, JSON.stringify(parsedTodo));
+                li.classList.remove("fin-y");
+                li.querySelector(".del-btn").style.visibility = "hidden";
+            }else{
+                // 미완료 -> 완료
+                parsedTodo[todo.idx-1]["finYN"] = "Y";
+                localStorage.setItem(TODO_STORAGE, JSON.stringify(parsedTodo));
+                li.className="fin-y"
+                li.querySelector(".del-btn").style.visibility = "";
+            }
+        }
+    });
+}
 
 function loadTodo(){
     const storedTodo = localStorage.getItem(TODO_STORAGE);
+    const parsedTodo = JSON.parse(storedTodo);
+
     if(storedTodo !== null){
-        const parsedTodo = JSON.parse(storedTodo);
         parsedTodo.forEach(function(todo:any){
-            //const loadCurTime = todo.curTime.toUTCString();          
-            addTodo(todo.text, todo.curTime);
+            if(parsedTodo[todo.idx-1]["finYN"] === "Y"){
+                todo.finYN = "Y";
+            }else{
+                todo.finYN = "N";
+            }
+            drawTodo(todo.text, todo.curTime, todo.finYN);
         });
     }
 }
