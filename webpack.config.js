@@ -6,6 +6,7 @@ const config = {
   entry: './src/index.ts',
   output: {
     path: path.resolve(__dirname, 'public'),
+    //publicPath: 'http://localhost:5000/',
     filename: 'index.js'
   },
   module: {
@@ -21,7 +22,7 @@ const config = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: 'src/index.html',
+      template: 'public/index.html',
       inject: false
     })
   ]
